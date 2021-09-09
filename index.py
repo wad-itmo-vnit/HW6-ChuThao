@@ -128,6 +128,61 @@ def changepwd():
         flash("Old password is not correct!")
     return render_template('changepwd.html')
 
+def allowed_extension(file_name):
+    EXTENSIONS = ['png', 'jpg', 'jpeg']
+    extension = file_name.split('.')[-1].lower()
+    return extension in EXTENSIONS
 
+@app.route('/changeavatar', methods=['POST', 'GET'])
+@login_required
+def change_avatar():
+    username = request.cookies.get('username')
+    current_user = User.get_user(db, username)
+    if request.method == 'GET':
+        user_avatar = current_user.get_avatar()
+        return render_template('change_avatar.html', user_avatar=user_avatar)
+    
+    if 'avatar-img' not in request.files:
+        flash("File not foud!")
+        return redirect('/changeavatar')
+    
+    file = request.files['avatar-img']
+
+    if file.filename == '':
+        flash("No file selected!")
+        return redirect('/changeavatar')
+    
+    if not allowed_extension(file.filename):
+        flash("Invalid file extension!")
+        return redirect('/changeavatar')
+    
+    file_name = secure_filename(file.filename)
+    try:
+        user_avatar = current_user.get_avatar()
+        try:
+            if user_avatar != 'default.jpg':
+                id = mongo.db.fs.files.find_one({"filename": user_avatar}).get('_id')
+                mongo.db.fs.chunks.remove({'files_id': id})
+                mongo.db.fs.files.remove({'_id': id})
+        except:
+                flash("Avatar is not in database!")
+        
+        mongo.save_file(file_name, file)
+        current_user.set_avatar(file_name)
+    except:
+        flash("Error saving file!")
+        return redirect('/changeavatar')
+    
+    flash("Successfully!")
+    return redirect('/changeavatar')
+
+@app.route('/changeavatar/<filename>')
+@login_required
+def uploaded(filename):
+    if filename == 'default.jpg':
+        return app.send_static_file(filename)
+    return mongo.send_file(filename)
+    
+    
 if __name__ == '__main__':
     app.run(host='localhost', port=5000, debug=True)
