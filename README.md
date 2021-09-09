@@ -21,6 +21,7 @@ pip freeze > requirements.txt
 - Saving data to MongoDB using PyMongo
 - Login with your name and your password 
 - Can change your password
+- Update and change avatar
 
 ## Run
 ```sh 
