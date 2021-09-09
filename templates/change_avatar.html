@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change avatar</title>
+    <style>
+        body {
+            background-image: linear-gradient( blanchedalmond, #f08989);
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        
+        #avatar-conter{
+            width: 500px;
+            height: 500px;
+            margin: 50px auto;
+            background-color:white;
+            border: 0px solid;
+            border-radius: 6px;
+            padding: 5%;  
+            box-sizing: border-box;
+            box-shadow: 0 6px 12px 0 rgba(3, 3, 3, 0.2);
+
+        }
+        input[type=submit]{
+            color:#16763e;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            display:block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color:#f7cccc;
+            font-size: 20px;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="avatar-conter">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul style="color: #16763e; ">
+                {% for message in messages %}
+                    <li>{{message}}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% endwith %} 
+        <img src="/upload/{{user_avatar}}" alt="User's avatar" id="avatar" style="width: 300px ; height: 300px">
+        <br>
+        <br>
+        <form action="/changeavatar" method="post" enctype="multipart/form-data">
+            <input type="file" name="avatar-img" id="avatar-input" accept="image/*">
+            <input type="submit" value="Update">
+        </form>
+        <br>
+        <br>
+        <span> Go to <a href="/home"> Home</a></span>
+        <script>
+            const image = document.querySelector("#avatar");
+            const input = document.querySelector("#avatar-input");
+    
+            input.addEventListener("change", (e) => {
+                const selected_src = URL.createObjectURL(e.target.files[0]);
+                image.src = selected_src;
+            })
+        </script>
+    </div>
+</body>
+</html>
